@@ -1,0 +1,104 @@
+{% extends 'adminlte/base.html' %}
+
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box">
+                <div class="box-header">
+                    <h3>Producct</h3>
+                    <p> <a class="btn btn-sm btn-success" href="{% url 'product-create' %}"> + Add Product </a></p>
+                </div>
+                <div class="box-body">
+                    <div id="messages">
+
+                    </div>
+                    <table class="table table-stripped">
+                        <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>NAME</td>
+                            <td>Quantity</td>
+                            <td>Status</td>
+                            <td>Created at</td>
+                            <td>Update Status</td>
+                            <td>Update Product</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for product in object_list %}
+                        <tr>
+                            <td>#{{ product.id }}</td>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.quantity }}</td>
+                            <td>{{ product.is_active }}</td>
+                            <td>{{ product.created_at }}</td>
+                            <td>
+                                {% if product.is_active %}
+                                <button onclick="change_status(this, {{ product.id }})" class="btn btn-sm btn-danger">Deactivate</button>
+                                {% else %}
+                                <button onclick="change_status(this, {{ product.id }})" class="btn btn-sm btn-success">Activate</button>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'product-update' product.id %}" class="btn btn-sm btn-primary">Update</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_foot %}
+<script>
+    let clear = function() {
+        setInterval(() => { document.getElementById('messages').innerHTML = ``; }, 5000)
+    }
+
+    let change_status = function (element, product_id) {
+
+        let url = `/api/change-active-status/` + product_id + `/`;
+        fetch (url, {method: 'POST'}).then((r) => {
+            if (r.ok) {
+                return r.json()
+            } else {
+                document.getElementById('messages').innerHTML = `<div class="alert alert-error" role="alert">` + r.text + `</div>`;
+            }
+        }).then((r) => {
+            if (r){
+                if (r.error) {
+                    document.getElementById('messages').innerHTML = `<div class="alert alert-warning">` + r.error + `</div>`;
+                } else {
+                    if (r.is_active) {
+                        document.getElementById('messages').innerHTML = `<div class="alert alert-success" role="alert"> Product Activated!</div>`;
+                        element.classList.remove('btn-success')
+                        element.classList.add('btn-danger')
+                        element.textContent = 'Deactivate'
+                    } else {
+                        document.getElementById('messages').innerHTML = `<div class="alert alert-warning" role="alert">Product Dectivated!</div>`;
+                        element.classList.remove('btn-danger');
+                        element.classList.add('btn-success');
+                        element.textContent = 'Activate'
+                    }
+                }
+            }
+
+        }).then(clear)
+    };
+
+</script>
+<script>
+$(function() {
+   $(document).on('click', '.alert-close', function() {
+       $(this).parent().hide();
+   })
+});
+</script>
+{% endblock %}

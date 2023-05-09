@@ -1,0 +1,6 @@
+Django
+django-rest-framework
+django-adminlte2
+crispy-bootstrap5
+pytz
+
