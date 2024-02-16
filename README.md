@@ -1,5 +1,5 @@
 
-# Faya Interview eCommerce
+
 
 ## User
 - username: `admin`
